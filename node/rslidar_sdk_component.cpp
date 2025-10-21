@@ -40,9 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace robosense::lidar;
 
-std::mutex g_mtx;
-std::condition_variable g_cv;
-
 namespace rslidar_sdk
 {
 
@@ -64,8 +61,7 @@ public:
     config_path = (std::string)PROJECT_PATH;
     config_path += "/config/config.yaml";
 
-    std::shared_ptr<rclcpp::Node> nd = rclcpp::Node::make_shared("param_handle");
-    std::string path = nd->declare_parameter<std::string>("config_path", "");
+    std::string path = this->declare_parameter<std::string>("config_path", "");
 
     if (!path.empty())
     {
