@@ -136,8 +136,9 @@ if(rclcpp_FOUND)
 
   add_definitions(-DROS2_FOUND)
   include_directories(${rclcpp_INCLUDE_DIRS})
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 
+  find_package(rclcpp_components REQUIRED)
   find_package(ament_cmake REQUIRED)
   find_package(sensor_msgs REQUIRED)
   find_package(rslidar_msg REQUIRED)
@@ -164,13 +165,17 @@ include_directories(${rs_driver_INCLUDE_DIRS})
 # Build Setup
 #========================
 
-add_executable(rslidar_sdk_node
-               node/rslidar_sdk_node.cpp
-               src/manager/node_manager.cpp)
+if(NOT rclcpp_FOUND)
 
-target_link_libraries(rslidar_sdk_node                   
-                      ${YAML_CPP_LIBRARIES}
-                      ${rs_driver_LIBRARIES})
+  add_executable(rslidar_sdk_node
+                node/rslidar_sdk_node.cpp
+                src/manager/node_manager.cpp)
+
+  target_link_libraries(rslidar_sdk_node                   
+                        ${YAML_CPP_LIBRARIES}
+                        ${rs_driver_LIBRARIES})
+
+endif(NOT rclcpp_FOUND)
 
 #Ros#
 if(roscpp_FOUND)
@@ -188,15 +193,32 @@ endif(roscpp_FOUND)
 #Ros2#
 if(rclcpp_FOUND)
 
-  ament_target_dependencies(rslidar_sdk_node 
+  add_library(rslidar_sdk_component SHARED
+               node/rslidar_sdk_component.cpp
+               src/manager/node_manager.cpp)
+
+  target_link_libraries(rslidar_sdk_component
+                        ${YAML_CPP_LIBRARIES}
+                        ${rs_driver_LIBRARIES})
+
+  ament_target_dependencies(rslidar_sdk_component
     rclcpp 
+    rclcpp_components
     std_msgs 
     sensor_msgs 
     rslidar_msg)
 
+  rclcpp_components_register_node(rslidar_sdk_component
+    PLUGIN "rslidar_sdk::RSLidarSdk"
+    EXECUTABLE rslidar_sdk_node
+  )
+
   install(TARGETS
-    rslidar_sdk_node
-    DESTINATION lib/${PROJECT_NAME})
+    rslidar_sdk_component
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+  )
 
   install(DIRECTORY
     launch
