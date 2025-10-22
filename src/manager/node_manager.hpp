@@ -44,7 +44,7 @@ class NodeManager
 {
 public:
 
-  void init(const YAML::Node& config);
+  void init(const YAML::Node& config, rclcpp::Node* node);
   void start();
   void stop();
 

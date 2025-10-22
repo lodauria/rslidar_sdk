@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "msg/rs_msg/lidar_point_cloud_msg.hpp"
 #include "utility/yaml_reader.hpp"
 #include <rs_driver/msg/packet.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 
 namespace robosense
@@ -47,7 +48,7 @@ class DestinationPointCloud
 public:
   typedef std::shared_ptr<DestinationPointCloud> Ptr;
 
-  virtual void init(const YAML::Node& config){}
+  virtual void init(const YAML::Node& config, rclcpp::Node* node = nullptr){}
   virtual void start() {}
   virtual void stop() {}
   virtual void sendPointCloud(const LidarPointCloudMsg& msg) = 0;

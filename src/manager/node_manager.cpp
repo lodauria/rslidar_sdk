@@ -40,7 +40,7 @@ namespace robosense
 namespace lidar
 {
 
-void NodeManager::init(const YAML::Node& config)
+void NodeManager::init(const YAML::Node& config, rclcpp::Node* node)
 {
   YAML::Node common_config = yamlSubNodeAbort(config, "common");
 
@@ -128,7 +128,7 @@ void NodeManager::init(const YAML::Node& config)
       RS_DEBUG << "------------------------------------------------------" << RS_REND;
 
       std::shared_ptr<DestinationPointCloud> dst = std::make_shared<DestinationPointCloudRos>();
-      dst->init(lidar_config[i]);
+      dst->init(lidar_config[i], node);
       source->regPointCloudCallback(dst);
     }
 

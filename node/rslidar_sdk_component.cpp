@@ -84,7 +84,7 @@ public:
     }
 
     demo_ptr = std::make_shared<NodeManager>();
-    demo_ptr->init(config);
+    demo_ptr->init(config, this);
     demo_ptr->start();
 
     RS_MSG << "RoboSense-LiDAR-Driver is running....." << RS_REND;

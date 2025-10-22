@@ -430,7 +430,7 @@ class DestinationPointCloudRos : virtual public DestinationPointCloud
 {
 public:
 
-  virtual void init(const YAML::Node& config);
+  virtual void init(const YAML::Node& config, rclcpp::Node* node);
   virtual void sendPointCloud(const LidarPointCloudMsg& msg);
 #ifdef ENABLE_IMU_DATA_PARSE
   virtual void sendImuData(const std::shared_ptr<ImuData> & data);
@@ -438,7 +438,7 @@ public:
   virtual ~DestinationPointCloudRos() = default;
 
 private:
-  std::shared_ptr<rclcpp::Node> node_ptr_;
+  rclcpp::Node* node_ptr_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_;
 #ifdef ENABLE_IMU_DATA_PARSE
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
@@ -447,7 +447,7 @@ private:
   bool send_by_rows_;
 };
 
-inline void DestinationPointCloudRos::init(const YAML::Node& config)
+inline void DestinationPointCloudRos::init(const YAML::Node& config, rclcpp::Node* node)
 {
   yamlRead<bool>(config["ros"], 
       "ros_send_by_rows", send_by_rows_, false);
@@ -467,11 +467,7 @@ inline void DestinationPointCloudRos::init(const YAML::Node& config)
   size_t ros_queue_length;
   yamlRead<size_t>(config["ros"], "ros_queue_length", ros_queue_length, 100);
 
-  static int node_index = 0;
-  std::stringstream node_name;
-  node_name << "rslidar_points_destination_" << node_index++;
-
-  node_ptr_.reset(new rclcpp::Node(node_name.str()));
+  node_ptr_ = node;
 
   pub_ = node_ptr_->create_publisher<sensor_msgs::msg::PointCloud2>(ros_send_topic, ros_queue_length);
 
